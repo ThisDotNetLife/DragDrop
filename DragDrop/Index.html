@@ -1,0 +1,1181 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <title>Drag and Drop Example</title>
+    <link href="/Common/Frameworks/jquery-ui-1.11.4.custom/jquery-ui.min.css" rel="stylesheet" />
+    <link href="/js/Bootstrap3-Dialog/1.34.9/css/bootstrap-dialog.min.css" rel="stylesheet" />
+    <link href="/Common/Frameworks/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/styles/addEditTracer.css" rel="stylesheet" />
+
+    <style type="text/css">
+        body {
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            padding: 0.4em;
+            font-family: Arial;
+        }
+
+        div.fullScreen {
+            margin: 10px 0 3px 10px;
+            width: 97%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        div.hdrTracerWrapper {
+            border: black solid 1px;
+            width: 97%;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 4px;
+        }
+
+        div.hrdTracerHeader {
+            border: black solid 1px;
+            width: 98%;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 4px;
+            margin: 10px 0 10px 15px;
+        }
+
+        div.container {
+            padding: 0;
+            width: 99%;
+        }
+
+        div.question {
+            width: 99%;
+            z-index: 1;
+        }
+
+        div.section {
+            width: 99%;
+            z-index: 1;
+        }
+
+        div.sortableHandle {
+            display: none;
+        }
+
+        ul {
+            list-style: none;
+            margin-left: -25px;
+        }
+
+        li {
+            width: 99%;
+            background-color: whitesmoke; /* rgb(245, 245, 245); */
+            border: 1px solid darkgray;
+            padding: 5px 5px 0 5px;
+            font-family: Arial;
+            font-size: 12pt;
+            margin-bottom: 8px; /* This style separates the questions. */
+            border-radius: 4px;
+        }
+
+        .ui-selected {
+            color: dimgray;
+            background-image: url('images/BlueToWhiteSmoke.jpg');
+            background-repeat: repeat-y;
+            background-size: 100%;
+        }
+
+        table.questionSection {
+            width: 100%;
+        }
+
+        td.select {
+            width: 20px;
+            text-align: center;
+            vertical-align: top;
+            cursor: pointer;
+            padding-top: 2px;
+        }
+
+        td.num {
+            padding-top: 5px;
+            width: 30px;
+            text-align: right;
+            vertical-align: top;
+        }
+
+        td.text {
+            text-align: left;
+            font-size: 12pt;
+            cursor: pointer;
+            padding: 5px 0 4px 3px;
+            vertical-align: top;
+        }
+
+            td.text:hover {
+                text-decoration: underline;
+                color: blue;
+            }
+
+        td.eps {
+            width: 130px;
+            padding-left: 10px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 10pt;
+            cursor: pointer;
+        }
+
+        td.cms {
+            width: 50px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 10pt;
+            cursor: pointer;
+        }
+
+        td.isReq {
+            width: 40px;
+            text-align: center;
+            vertical-align: top;
+            font-size: 8pt;
+            cursor: pointer;
+        }
+
+        td.edit {
+            width: 50px;
+            text-align: center;
+            vertical-align: top;
+            font-size: 8pt;
+            cursor: pointer;
+        }
+
+        td.delete {
+            width: 30px;
+            text-align: center;
+            vertical-align: top;
+            font-size: 8pt;
+            cursor: pointer;
+        }
+
+        td.hdr {
+            height: 60px;
+            vertical-align: middle;
+        }
+
+        img.expandCollapse {
+            margin-top: 5px;
+        }
+
+        .modal-header {
+            padding: 9px 15px;
+            border-bottom: 1px solid #eee;
+            color: #FFFFFF;
+            background-color: #337AB7;
+            -webkit-border-top-left-radius: 5px;
+            -webkit-border-top-right-radius: 5px;
+            -moz-border-radius-topleft: 5px;
+            -moz-border-radius-topright: 5px;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+        /* Sets modal header to white text with blue background. */
+
+        label.errMessage {
+            color: red;
+            float: left;
+            display: none;
+        }
+    </style>
+
+    <script src="/Common/Frameworks/jquery-1.12.0.min.js"></script>
+    <script src="/Common/Frameworks/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+    <script src="/Common/Frameworks/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/js/Bootstrap3-Maxlength/1.7/bootstrap-maxlength.js"></script>
+    <script src="/js/Bootstrap3-Dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
+</head>
+
+<body>
+    <form>
+        <input type="hidden" name="hiddenField" />
+
+        <div class="fullScreen" id="pageTitle" style="text-align:center;">
+            <h3><span id="pageTitle">Create New Tracer</span>&nbsp;<span style="font-size:10pt; font-weight: bold;">* = Required</span></h3>
+        </div>            <!-- Page Title -->
+
+        <div id="msgAlert" class="alert alert-success fullScreen">
+            <a href="#" class="close" data-dismiss="alert">&times;</a>
+            <span id="msgText">&nbsp;</span>
+        </div>  <!-- Bootstrap Alert. -->
+
+        <div class="fullScreen form-group form-inline">
+            <table style="width:100%;">
+                <tr>
+                    <td style="width:110px;"><label for="txtTracerName" class="control-label">Tracer Name: *&nbsp;</label></td>
+                    <td width="*"><input type="text" id="txtTracerName" class="form-control" style="width:100%" placeholder="Enter Tracer Name" maxlength="150" /></td>
+                    <td style="width:130px;"><label for="lstTracerCategory" class="control-label" style="padding-left:10px;">Tracer Category:&nbsp;</label></td>
+                    <td style="width:180px;">
+                        <select id="lstTracerCategory" class="form-control" style="width:180px;">
+                            <option value="6">Audit</option>
+                            <option value="3">Focused</option>
+                            <option value="5">General</option>
+                            <option value="1" selected="selected">Patient</option>
+                            <option value="4">Second Generation</option>
+                            <option value="2">System</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>             <!-- Tracer Title -->
+
+        <div class="fullScreen">
+            <div>
+                <label class="control-label" style="margin-bottom: 0px;">Add Tracer Questions</label><br />
+                <span>Add questions using one of these options.</span><br />
+                <button id="btnBuildOwnQuestion"  class="btn btn-default active" style="margin: 5px 0 0 0;">Build Your Own Question</button>
+                <button id="btnUseJCRTemplate"    class="btn btn-default active" style="margin: 5px 0 0 50px;">Use JCR Template / My Tracer</button>
+                <button id="btnAdvQuestionSearch" class="btn btn-default active" style="margin: 5px 0 0 50px;">Advanced Question Search</button><br />
+                <label class="control-label" style="margin:20px 0 0 0;">Tracer Template</label><br />
+                <span>Drag and drop questions to reorder or group into sections. Use <span style="text-decoration:underline; color:#80ACD2;">Edit</span> to change question text, associate EPs, link documents and more..</span><br />
+                <div>
+                    <div style="float:left; padding-bottom:5px; margin-top:5px;">
+                        <button id="btnShowDialogAddSection" class="btn btn-default active">Add Section</button>
+                        <a href="#" id="hrefExpandCollapse" class="expanded" style="vertical-align: bottom;">Collapse All Sections</a>
+                    </div>
+                    <div style="float:right; padding-bottom:5px; margin-top:5px;">
+                        <button id="btnSaveTop"    class="btn btn-default active">Save</button>
+                        <button id="btnPublishTop" class="btn btn-default disabled">Publish</button>
+                        <button id="btnCancelTop"  class="btn btn-default active">Cancel</button>
+                    </div>
+                </div>
+                <div style="clear:both"></div>
+            </div>
+        </div>                                    <!-- Buttons to create questions, sections, save, publish and cancel. -->
+
+        <div class="hdrTracerWrapper">
+                <div class="hrdTracerHeader">
+                    <table width="100%" style="font-size: 12pt;">
+                        <tr>
+                            <td class="hdr" style="width: 57px;text-align: right;">Q#</td>
+                            <td class="hdr" width="*" style="text-align: center;">Question Text</td>
+                            <td class="hdr" style="width: 118px;">Standard-EP</td>
+                            <td class="hdr" style="width: 50px;">CMS</td>
+                            <td class="hdr" style="width: 50px; font-size:8pt; text-align:center;"><img id="imgReqHdr" src="../Images/iconGrayNotRequired.jpg" style="cursor:pointer;" /><span>Response Optional</span></td>
+                            <td class="hdr" style="width: 100px;"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div id="container">
+                    <ul class="ul-list" id="questions">
+                        <li id="L1">
+                            <div id="S1" class="section">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><img class="expandCollapse" src="/Images/iconCollapse.png" /></td>
+                                        <td class="text" width="*">Countries</td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>   <!-- Countries        -->
+                        <li id="L11">
+                            <div id="Q9" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">9.</td>
+                                        <td class="text" width="*">Germany</td>
+                                        <td class="eps"><a href="#">PC.01.03.01 - 5</a></td>
+                                        <td class="cms"><a href="#">CMS</a></td>
+                                        <td class="isReq"><img id="imgReq9" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>  <!-- Germany          -->
+                        <li id="L4">
+                            <div id="Q3" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">3.</td>
+                                        <td class="text" width="*">France</td>
+                                        <td class="eps"><a href="#">NPSG.15.01.01 - 1</a></td>
+                                        <td class="cms"><a href="#"></a></td>
+                                        <td class="isReq"><img id="imgReq3" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>   <!-- France           -->
+                        <li id="L10">
+                            <div id="Q8" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">8.</td>
+                                        <td class="text" width="*">England</td>
+                                        <td class="eps"><a href="#">PC.01.03.01 - 5</a></td>
+                                        <td class="cms"><a href="#">CMS</a></td>
+                                        <td class="isReq"><img id="imgReq8" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>  <!-- England          -->
+
+                        <li id="L5">
+                            <div id="S2" class="section">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><img class="expandCollapse" src="/Images/iconCollapse.png" /></td>
+                                        <td class="text" width="*">Presidents</td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>   <!-- Presidents       -->
+                        <li id="L9">
+                            <div id="Q7" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">7.</td>
+                                        <td class="text" width="*">Thomas Jefferson</td>
+                                        <td class="eps"><a href="#">PC.01.03.01 - 1</a></td>
+                                        <td class="cms"><a href="#">CMS</a></td>
+                                        <td class="isReq"><img id="imgReq7" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>   <!-- Thomas Jefferson -->
+                        <li id="L8">
+                            <div id="Q6" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">6.</td>
+                                        <td class="text" width="*">Abraham Lincoln</td>
+                                        <td class="eps"><a href="#">NPSG.15.01.01 - 2</a></td>
+                                        <td class="cms"><a href="#"></a></td>
+                                        <td class="isReq"><img id="imgReq6" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>   <!-- Abraham Lincoln  -->
+                        <li id="L14">
+                            <div id="Q12" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">12.</td>
+                                        <td class="text" width="*">Barack Obama</td>
+                                        <td class="eps"><a href="#">PC.01.02.03 - 3</a></td>
+                                        <td class="cms"><a href="#">CMS</a></td>
+                                        <td class="isReq"><img id="imgReq12" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>  <!-- Barack Obama     -->
+
+                        <li id="L16">
+                            <div id="S3" class="section">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><img class="expandCollapse" src="/Images/iconCollapse.png" /></td>
+                                        <td class="text" width="*">U.S. States</td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>  <!-- U.S. States      -->
+                        <li id="L7">
+                            <div id="Q5" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">5.</td>
+                                        <td class="text" width="*">Arizona</td>
+                                        <td class="eps"><a href="#">NPSG.15.01.01 - 2</a></td>
+                                        <td class="cms"><a href="#"></a></td>
+                                        <td class="isReq"><img id="imgReq5" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>   <!-- Arizona          -->
+                        <li id="L3">
+                            <div id="Q2" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">2.</td>
+                                        <td class="text" width="*">Wisconsin</td>
+                                        <td class="eps"><a href="#">NPSG.15.01.01 - 1</a></td>
+                                        <td class="cms"><a href="#">CMS</a></td>
+                                        <td class="isReq" id="req2"><img id="imgReq2" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>   <!-- Wisconsin        -->
+                        <li id="L15">
+                            <div id="Q13" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">13.</td>
+                                        <td class="text" width="*">Indiana</td>
+                                        <td class="eps"><a href="#">NPSG.15.01.01 - 3</a></td>
+                                        <td class="cms"><a href="#"></a></td>
+                                        <td class="isReq"><img id="imgReq13" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>  <!-- Indiana          -->
+                        <li id="L12">
+                            <div id="Q10" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">10.</td>
+                                        <td class="text" width="*">Montana</td>
+                                        <td class="eps"><a href="#">PC.01.03.01 - 5</a></td>
+                                        <td class="cms"><a href="#">CMS</a></td>
+                                        <td class="isReq"><img id="imgReq10" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>  <!-- Montana          -->
+
+                        <li id="L17">
+                            <div id="S7" class="section">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><img class="expandCollapse" src="/Images/iconCollapse.png" /></td>
+                                        <td class="text" width="*">Holidays</td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>  <!-- Holidays         -->
+                        <li id="L13">
+                            <div id="Q11" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">11.</td>
+                                        <td class="text" width="*">Memorial Day</td>
+                                        <td class="eps"><a href="#">PC.02.03.01 - 10</a></td>
+                                        <td class="cms"><a href="#"></a></td>
+                                        <td class="isReq"><img id="imgReq11" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>  <!-- Memorial Day     -->
+                        <li id="L2">
+                            <div id="Q1" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">1.</td>
+                                        <td class="text" width="*">Christmas</td>
+                                        <td class="eps"><a href="#">NPSG.15.01.01 - 1</a></td>
+                                        <td class="cms"><a href="#">CMS</a></td>
+                                        <td class="isReq"><img id="imgReq1" src="../Images/iconRedRequired.jpg" /><span></span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>   <!-- Christmas        -->
+                        <li id="L6">
+                            <div id="Q4" class="question">
+                                <table class="questionSection">
+                                    <tr>
+                                        <td class="select"><input type="checkbox" class="pickQuestion" /></td>
+                                        <td class="num">4.</td>
+                                        <td class="text" width="*">Thanksgiving</td>
+                                        <td class="eps"><a href="#">NPSG.15.01.01 - 2</a></td>
+                                        <td class="cms"><a href="#"></a></td>
+                                        <td class="isReq"><img id="imgReq4" src="../Images/iconGrayNotRequired.jpg" /><span>Response Optional</span></td>
+                                        <td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>
+                                        <td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>   <!-- Thanksgiving     -->
+                    </ul>
+                </div>
+                <br style="clear:both">
+            </div>                              <!-- Wrapper for header and all sections & questions. -->
+        
+        <div class="fullScreen" style="padding-bottom: 5px 0px 10px 0;">
+            <div style="float:right;">
+                <button id="btnSaveBottom"    class="btn btn-default active">Save</button>
+                <button id="btnPublishBottom" class="btn btn-default disabled">Publish</button>
+                <button id="btnCancelBottom"  class="btn btn-default active">Cancel</button>
+            </div>
+        </div>                                    <!-- Bottom buttons for save, publish and cancel. -->
+
+        <div>
+            <div style="clear:both"></div>
+            <div class="modal fade" tabindex="-1" role="dialog" id="dlgAddEditSection">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 id="addEditSectionTitle" class="modal-title">Add Section</h4>
+                        </div>
+                        <div class="modal-body form-inline";>
+                            <label for="txtSectionName" class="control-label">Section Name:&nbsp;</label>
+                            <input type="text" class="form-control" placeholder="Enter Section Name" id="txtSectionName" maxlength="50" style="width:462px;" />
+
+                        </div>
+                        <div class="modal-footer">
+                            <div>
+                                <label class="control-label errMessage" id="dlgAddEditSectionError"></label>
+                            </div>
+
+                            <div style="float:right;">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" onclick="validateSectionTitle('dlgAddEditSection');">Add</button>
+                            </div>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+            <div style="clear:both"></div>
+            <!--Next modal dialog goes here.-->
+        </div>                                                       <!-- Modal dialogs.-->
+    </form>
+
+    <script type="text/javascript">
+        window.CONSTANTS = { ENTER_KEY: 13, ESC_KEY: 27 }
+
+        $(function () {
+
+            hideAlert();
+
+            cleanUpScreen();
+
+            $("#hrefExpandCollapse").bind('click', function () {
+                if (this.className === "expanded") {
+                    collapseAll(true);
+                } else {
+                    collapseAll(false);
+                }
+            });
+
+            $("img.expandCollapse").bind('click', function () {
+                var img = this.src;
+                if (img.indexOf('iconExpand.png') > 0) {
+                    // Expand the section.
+                    $(this).closest("LI").nextAll().each(function (index) {
+                        if ($(this).find("DIV").hasClass("question")) {
+                            $(this).show("slow");
+                        } else {
+                            return false;
+                        }
+                    });
+                    $(this).attr("src", "/Images/iconCollapse.png");
+                } else {
+                    if (img.indexOf('iconCollapse.png') > 0) {
+                        // Collapse the section.
+                        $(this).closest("LI").nextAll().each(function (index) {
+                            if ($(this).find("DIV").hasClass("question")) {
+                                $(this).hide("slow");
+                            } else {
+                                return false;
+                            }
+                        });
+                        $(this).attr("src", "/Images/iconExpand.png");
+                    }
+                }
+            });
+
+            $("img").bind('click', function () {
+                var img = this.src;
+                if (img.indexOf('iconGrayNotRequired.jpg') > 0) {
+                    $(this).attr('src', '/images/iconRedRequired.jpg');
+                    var elementAfterImg = $(this).next();
+                    var spanTag = $(elementAfterImg)[0];
+                    $(spanTag).text('');
+                    if (this.id === "imgReqHdr") {
+                        updateAllSwitches('/images/iconRedRequired.jpg');
+                    }
+                } else {
+                    if (img.indexOf('iconRedRequired.jpg') > 0) {
+                        $(this).attr('src', '/images/iconGrayNotRequired.jpg');
+                        var elementAfterImg = $(this).next();
+                        var spanTag = $(elementAfterImg)[0];
+                        $(spanTag).text('Response Optional');
+                        if (this.id === "imgReqHdr") {
+                            updateAllSwitches('/images/iconGrayNotRequired.jpg');
+                        }
+                    }
+                }
+            });
+
+            $(".pickQuestion").bind('click', function () {
+                var questionClicked_DIV = $(this).closest("div.question")[0].id;
+                var lineItem = $(this).closest("LI")[0].id;
+
+                if ($(this).is(':checked')) {
+                    $("#" + lineItem).addClass("ui-selected");
+                } else {
+                    $("#" + lineItem).removeClass("ui-selected");
+                }
+            });
+
+            $('.ul-list').sortable({
+                connectWith: ".ul-list",
+                delay: 100,
+                start: function (e, ui) {
+                    var topleft = 0;
+
+                    // if the current sorting LI is not selected, select
+                    $(ui.item).addClass('ui-selected');
+
+                    var lineItemID = $(ui.item)[0].id;
+
+                    var div = $("#" + (ui.item).find('DIV')[0].id);
+                    if ($(div)[0].className === "section") {
+                        // User is attempting to move a section. Check if this section has questions.
+                        selectChildrenIfAny(lineItemID);
+                    }
+
+                    $('.ui-selected div').each(function () {
+
+                        // save reference to original parent
+                        var originalParent = $(this).parent()[0];
+                        $(this).data('origin', originalParent);
+
+                        // position each DIV in cascade
+                        $(this).css('position', 'absolute');
+                        $(this).css('top', topleft);
+                        $(this).css('left', topleft);
+                        topleft += 20;
+
+                    }).appendTo(ui.item); // glue them all inside current sorting LI
+
+                    collapseAll(false);
+                },
+                stop: function (e, ui) {
+                    $(ui.item).children().each(function () {
+
+                        // Restore all the DIVs in the sorting LI to their original parents
+                        var originalParent = $(this).data('origin');
+                        $(this).appendTo(originalParent);
+
+                        // Remove the cascade positioning
+                        $(this).css('position', '');
+                        $(this).css('top', '');
+                        $(this).css('left', '');
+
+                        // Turn off checkboxes.
+                        $("#" + this.id).find("input:checkbox").attr('checked', false);
+                    });
+
+                    $('#questions .ui-selected').insertAfter(ui.item);
+
+                    // Remove the class that shades the question as being selected.
+                    $('#questions .ui-selected').removeClass("ui-selected");
+
+                    cleanUpScreen();
+
+                    if ($(ui.item).find("DIV")[0].className === "section") {    // Line item being dragged is a section.
+                        var img = $(ui.item).find("img.expandCollapse")[0];
+                        if (img.src.indexOf('iconExpand.png') > 0) {
+                            // Expand the section.
+                            $(ui.item).nextAll().each(function (index) {
+                                if ($(this).find("DIV").hasClass("question")) {
+                                    $(this).show("slow");
+                                } else {
+                                    return false;
+                                }
+                            });
+                            $(img).attr("src", "/Images/iconCollapse.png");
+                        }
+                    }
+                }
+            });
+
+            $.fn.inlineEdit = function () {
+
+                $(this).hover(function () {
+                    $(this).addClass('hover');
+                }, function () {
+                    $(this).removeClass('hover');
+                });
+
+                $(this).click(function () {
+                    var elem = $(this);
+                    var wd = $(this)[0].clientWidth + "px";
+                    var ht = $(this)[0].clientHeight + "px";
+
+                    elem.hide();
+                    var replaceWith = $('<textarea  id="inlineEdit" style="width:' + wd + '; height:' + ht + '; font-family: inherit; font-size: inherit;">' + $(this)[0].innerText + '</textarea>');
+
+                    elem.after(replaceWith);
+
+                    replaceWith.focus();
+
+                    replaceWith.blur(function () {
+                        if ($(this).val() !== "") {
+                            elem.text($(this).val());
+                        }
+                        $(this).remove();
+                        elem.show();
+                    });
+
+                    replaceWith.keypress(function (event) {
+                        var keycode = (event.keyCode ? event.keyCode : event.which);
+                        if (keycode === window.CONSTANTS.ENTER_KEY) {
+                            if ($(this).val() !== "") {
+                                elem.text($(this).val());
+                            }
+                            $(this).remove();
+                            elem.show();
+                        }
+                        if (keycode === window.CONSTANTS.ESC_KEY) {
+                            $(this).remove();
+                            elem.show();
+                        }
+                    });
+                });
+            };
+
+            $('td.text').inlineEdit();
+
+            // Needed to support MaxLength plug-in.
+
+            $('#txtTracerName').maxlength({
+                alwaysShow: true,
+                threshold: 10,
+                warningClass: "label label-success",
+                limitReachedClass: "label label-danger",
+                separator: ' out of ',
+                placement: 'bottom-right-inside',
+                preText: '',
+                postText: ' characters max.',
+                validate: true
+            });
+
+            $('#txtTracerName').blur(function () {
+                $('span.bootstrap-maxlength').hide();
+            });
+
+            $('#txtSectionName').maxlength({
+                alwaysShow: true,
+                threshold: 10,
+                warningClass: "label label-success",
+                limitReachedClass: "label label-danger",
+                separator: ' out of ',
+                placement: 'bottom-right-inside',
+                preText: '',
+                postText: ' characters max.',
+                validate: true
+            });
+
+            $('#txtSectionName').blur(function () {
+                $('span.bootstrap-maxlength').hide();
+            });
+
+            function updateAllSwitches(image) {
+                var switches = $("td.isReq > img");
+                for (var i = 0; i < switches.length; i++) {
+                    if (switches[i].id !== "imgReqHdr") {
+                        $(switches[i]).attr('src', image);
+                    }
+                }
+                console.log(switches.length);
+            }
+            function collapseAll(collapseAllNodes) {
+                var objLineItems = $("#container li");
+                var children = 0;
+                for (var i = objLineItems.length - 1; i > -1; i--) {
+                    if ($(objLineItems[i]).find("DIV").length > 0) {
+                        if ($(objLineItems[i]).find("DIV")[0].className === "section") {
+                            if (children > 0) {
+                                if (collapseAllNodes) {
+                                    $(objLineItems[i]).find("img.expandCollapse").attr("src", "/Images/iconExpand.png");
+                                } else {
+                                    $(objLineItems[i]).find("img.expandCollapse").attr("src", "/Images/iconCollapse.png");
+                                }
+                            }
+                            children = 0;
+                        } else {
+                            if (collapseAllNodes) {
+                                $(objLineItems[i]).hide("slow");
+                            } else {
+                                $(objLineItems[i]).show("slow");
+                            }
+                            children++;
+                        }
+                    }
+                }
+
+                var btn = $("#hrefExpandCollapse");
+                if (collapseAllNodes) {
+                    btn[0].className = "collapsed";
+                    btn[0].innerText = "Expand All Sections";
+                } else {
+                    btn[0].className = "expanded";
+                    btn[0].innerText = "Collapse All Sections";
+                }
+            }
+            function cleanUpScreen() {
+                // Renumber questions so then are in numerical order.
+                var num = 0;
+                $("td.num").each(function () {
+                    num++;
+                    $(this).text(num + ".");
+                });
+
+                var objLineItems = $("#container li");
+                var children = 0;
+                for (var i = objLineItems.length - 1; i > -1; i--) {
+                    if ($(objLineItems[i]).find("DIV").length > 0) {
+                        if ($(objLineItems[i]).find("DIV")[0].className === "section") {
+                            if (children === 0) {
+                                // When you find sections with no questions, set collapse/expand icon to spacer.
+                                $(objLineItems[i]).find("img.expandCollapse").attr("src", "/Images/iconSpacer.png");
+                            }
+                            // When you find sections with questions (children) and the section icon is iconSpacer.png,
+                            // then set collapse/expand icon to expanded [-].
+                            if (children > 0) {
+                                if ($(objLineItems[i]).find("img.expandCollapse")[0].src.indexOf('iconSpacer.png') > 0) {
+                                    $(objLineItems[i]).find("img.expandCollapse").attr("src", "/Images/iconCollapse.png");
+                                }
+                            }
+                            children = 0;
+                        } else {
+                            children++;
+                        }
+                    }
+                }
+            }
+            function selectChildrenIfAny(lineItemID) {
+                // This is how to find all younger siblings, yourself excluded.
+                var objLineItems = $("#" + lineItemID + " ~ LI");
+
+                // Odd thing. lineItem[0] is:
+                for (var i = 1; i < objLineItems.length; i++) {
+                    console.log($(objLineItems[i]).find("DIV")[0].className);
+
+                    if ($(objLineItems[i]).find("DIV")[0].className === "question") {
+                        $(objLineItems[i]).addClass('ui-selected');   // select child
+                    } else {
+                        return;
+                    }
+                }
+            }
+            function echo(objLineItems) {
+                console.clear();
+                for (var i = 0; i < objLineItems.length; i++) {
+                    if (objLineItems[i].isSection) {
+                        console.log("Section");
+                    } else {
+                        console.log("Question");
+                    }
+                    console.log("LI ID: " + objLineItems[i].lineItemID);
+                    console.log("DIV ID: " + objLineItems[i].divID);
+                    console.log("  Text: " + objLineItems[i].text);
+                    console.log("    No: " + objLineItems[i].sortOrder);
+                    console.log("Is Req: " + objLineItems[i].isRequired);
+                    console.log(" ");
+                }
+            }
+        });
+
+        // **********************************************************************
+        // Functions to to show "Add New Section" dialog and validate input.
+        // **********************************************************************
+        $("#btnShowDialogAddSection").bind('click', function () {
+            event.preventDefault();
+
+            $("#addEditSectionTitle")[0].innerText = "Add Section";
+
+            var txtBox = $("#dlgAddEditSection").find("input:text");
+            txtBox[0].value = "";
+
+            var errMessage = $("#dlgAddEditSection label.errMessage");
+            errMessage[0].innerText = "";
+
+            $("#dlgAddEditSection").modal('show');
+        });     // Clear input field, error message & show dialog.
+
+        $("input[id='txtSectionName']").keypress(function (event) {
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode === window.CONSTANTS.ENTER_KEY) {
+                validateSectionTitle('dlgAddEditSection');
+                return false;
+            }
+        });   // Intercept [ENTER] and perform data validation.
+        
+        function validateSectionTitle(callerID) {
+            var txtBox = $("#" + callerID).find("input:text");
+            var txtEntered = txtBox.val().trim();
+            var isAdd = false;
+            var isEdit = false;
+
+            if ($("#addEditSectionTitle")[0].innerText === "Edit Section") {
+                isEdit = true;
+            } else {
+                isAdd = true;
+            }
+
+            var errMessage = $("#" + callerID + " label.errMessage");
+            errMessage[0].innerText = "";
+
+            if (txtEntered.length === 0) {
+                txtBox[0].value = "";
+                errMessage[0].innerText = "Enter a Section Name";
+            } else {
+                if (txtEntered.toLowerCase() === "unassigned") {
+                    txtBox.select();
+                    errMessage[0].innerText = "This is section name is reserved by Tracers.";
+                } else {
+                    // Check if section name is already in use.
+                    var objLineItems = walkDom('container');
+                    var textLowerCase = txtEntered.toLowerCase();
+                    for (var i = 0; i < objLineItems.length; i++) {
+                        if (objLineItems[i].isSection === true) {
+                            if (lineItemInFlight === undefined) {
+                                if (objLineItems[i].text.toLowerCase() === textLowerCase) {
+                                    txtBox.select();
+                                    errMessage[0].innerText = "Section Name already exists.";
+                                    break;
+                                }
+                            } else {
+                                if (objLineItems[i].text.toLowerCase() === textLowerCase && objLineItems[i].lineItemID !== lineItemInFlight.lineItemID) {
+                                    txtBox.select();
+                                    errMessage[0].innerText = "Section Name already exists.";
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (errMessage[0].innerText.length > 0) {
+                $(errMessage[0]).css("display", "block");
+            } else {
+                if (isAdd) {
+                    alert("Add New Section: " + txtEntered);
+                } else {
+                    var td = $("#" + lineItemInFlight.lineItemID + " td.text");
+                    td[0].innerText = txtEntered;
+                }
+                $("#" + callerID).modal('hide');
+            }
+        }                       // Validate section name. If pass, then close dialog.
+
+        // **********************************************************************
+        // Functions to walk DOM and return object model.
+        // **********************************************************************
+        function lineItem() {
+            this.isSection = false;
+            this.isQuestion = false;
+            this.lineItemID = '';
+            this.divID = '';
+            this.sortOrder = 0;
+            this.text = '';
+            this.isRequired = false;
+            this.children = 0;
+            return this;
+        }
+        function walkDom(containerID) {
+            var objLineItems = [];
+
+            var $divID = '';
+            var $text = '';
+            var $sortOrder = 0;
+            var $secNo = 0;
+            var $isReq = false;
+
+            var $objLineItems = $("#" + containerID + " li");
+
+            if ($objLineItems.length > 0) {
+                for (var i = 0; i < $objLineItems.length; i++) {
+                    if ($objLineItems[0].id.length > 0) {
+                        var li = new lineItem();
+                        li.lineItemID = $("#" + $objLineItems[i].id)[0].id;
+
+                        var $div = $("#" + li.lineItemID + " > div:first-of-type");
+                        li.divID = $div[0].id;
+
+                        if ($div[0].className === 'section') {
+                            li.isSection = true;
+                        } else {
+                            li.isQuestion = true;
+                        }
+
+                        li.text = $("td.text", $div)[0].innerText;
+
+                        var num = $("td.num", $div);
+                        if (num.length > 0) {
+                            li.sortOrder = Number(num[0].innerText.replace('.', ''));
+                        } else {
+                            $secNo++;
+                            li.sortOrder = $secNo;
+                        }
+
+                        var img = $("td.isReq > img", $div);
+                        if (img.length > 0) {
+                            if (img[0].src.indexOf('iconRedRequired.jpg') > 0) {
+                                li.isRequired = true;
+                            }
+                        }
+                        objLineItems.push(li);
+                    }
+                }
+            }
+
+            var ctr = 0;
+            for (var i = objLineItems.length - 1; i >= 0; i--) {
+                if (objLineItems[i].isQuestion) {
+                    ctr += 1;
+                } else {
+                    objLineItems[i].children = ctr;
+                    ctr = 0;
+                }
+            }
+            return objLineItems;
+        }
+        function addLineItem() {
+
+            var markup  = '<li id="XX">';
+                markup += '<div id="YY" class="section">';
+                markup += '<table class="questionSection">';
+                markup += '<tr>';
+                markup += '<td class="select"><img class="expandCollapse" src="/Images/iconCollapse.png" /></td>';
+                markup += '<td class="text" width="*">ZZ</td>';
+                markup += '<td class="edit"><img src="/Images/iconEdit.png" /><br />Edit</td>';
+                markup += '<td class="delete"><img src="/Images/iconDelete.png" /><br />Delete</td>';
+                markup += '</tr>';
+                markup += '</table>';
+                markup += '</div>';
+                markup += '</li>';
+        }
+
+        // **********************************************************************
+        // Functions to invoke and manage the Bootstrap alert.
+        // **********************************************************************
+        function hideAlert() {
+            var msgAlert = $("#msgAlert");
+            msgAlert.removeClass("alert-danger");
+            msgAlert.removeClass("alert-warning");
+            msgAlert.removeClass("alert-success");
+            msgAlert.removeClass("alert-info");
+            $("#msgAlert").alert('close');
+        }
+        function showAlert(msgTypeOfAlert, msgText) {
+            // To call this method: showAlert("success", "Your message goes here.");
+            //                      showAlert("info",    "Your message goes here.");
+            //                      showAlert("danger",  "Your message goes here.")
+            event.preventDefault();
+
+            var msgAlert = $("#msgAlert");
+
+            if (msgText.length > 60) {
+                msgAlert.addClass("addScrollbar");
+            } else {
+                msgAlert.removeClass("addScrollbar");
+            }
+
+            msgAlert.removeClass("alert-danger");
+            msgAlert.removeClass("alert-warning");
+            msgAlert.removeClass("alert-success");
+            msgAlert.removeClass("alert-info");
+
+            switch (msgTypeOfAlert) {
+                case "danger":
+                    msgAlert.addClass("alert-danger");
+                    break;
+                case "warning":
+                    msgAlert.addClass("alert-warning");
+                    break;
+                case "success":
+                    msgAlert.addClass("alert-success");
+                    break;
+                case "info":
+                    msgAlert.addClass("alert-info");
+                    break;
+            }
+
+            $("#msgText").empty().html(msgText);
+            msgAlert.css("visibility", "visible");
+        }
+
+        // **********************************************************************
+        // Functions to process Edit and Delete icons.
+        // **********************************************************************
+        var lineItemInFlight;
+
+        $("td.edit").bind('click', function () {
+
+            var lineItemID = $(this).closest("LI")[0].id;                    // Get ID of <LI> element that contains icon user clicked on.
+
+            var objLineItems = walkDom('container');
+
+            for (var i = 0; i < objLineItems.length; i++) {
+                if (objLineItems[i].lineItemID === lineItemID) {
+                    lineItemInFlight = objLineItems[i];
+                    break;
+                }
+            }                   // Initialize lineItemInFlight to have properties for line item.
+
+            if (lineItemInFlight.isSection === true) {
+                $("#addEditSectionTitle")[0].innerText = "Edit Section";
+
+                var txtBox = $("#dlgAddEditSection").find("input:text");
+                txtBox[0].value = lineItemInFlight.text;
+
+                var errMessage = $("#dlgAddEditSection label.errMessage");
+                errMessage[0].innerText = "";
+
+                $("#dlgAddEditSection").modal('show');
+            }                      // if editing section show "Edit Section" dialog.
+        })
+
+        $("td.delete").bind('click', function () {
+            var lineItemInFlight;
+
+            var li = $(this).closest("LI");
+            lineItemID = li[0].id;
+
+            var objLineItems = walkDom('container');
+            for (var i = 0; i < objLineItems.length; i++) {
+                if (objLineItems[i].lineItemID === lineItemID) {
+                    lineItemInFlight = objLineItems[i];
+                    break;
+                }
+            }
+            console.log(lineItemInFlight);
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+﻿body { margin-bottom:10px; }
+
+input[type="text"] { padding: 0.4em; font-family: Arial; }
+
+.fullScreen {
+    margin: 10px 0 3px 10px;
+    width:97%;
+    margin-left: auto ;
+    margin-right: auto ;  
+}
+div.hdrTracerWrapper {
+    border: black solid 1px;
+    width:97%; 
+    margin-left: auto ;
+    margin-right: auto ;   
+    border-radius: 4px;     
+}
+div.hrdTracerHeader {
+    border: black solid 1px;
+    width:98%;
+    margin-left: auto ;
+    margin-right: auto ;   
+    border-radius: 4px;   
+    margin: 10px 0 10px 15px; 
+}
+div.container {
+    padding: 0;
+    width:99%;
+}
+div.question {
+    width: 99%;                            
+    z-index: 1; 
+}
+div.section {
+    width: 99%;                            
+    z-index: 1; 
+}
+div.sortableHandle {
+    display: none;
+}
+ul { list-style: none; margin-left:-25px;}
+li {
+    width: 99%;                            
+    background-color: whitesmoke;            /* rgb(245, 245, 245); */
+    border: 1px solid darkgray;
+    padding: 5px 5px 0 5px;
+    font-family:Arial;
+    font-size: 12pt; 
+    margin-bottom:8px;                        /* This style separates the questions. */
+    border-radius: 4px;
+}
+.ui-selected {
+    color: dimgray;
+    background-image: url('../Images/BlueToWhiteSmoke.jpg');
+    background-repeat: repeat-y;
+    background-size: 100%;
+}
+table.questionSection {
+    width: 100%;
+}
+td.select {
+    width: 20px;
+    text-align: center;
+    vertical-align: top;
+    cursor:pointer;
+    padding-top:2px;
+}
+td.num {
+    padding-top:5px;
+    width: 30px; 
+    text-align: right;
+    vertical-align:top;
+}
+td.text{
+    text-align:left; 
+    font-size:12pt;
+    cursor:pointer;
+    padding: 5px 0 4px 3px;
+    vertical-align:top;
+}
+td.text:hover{
+    text-decoration: underline;
+    color: blue;
+}
+td.eps{
+    width: 130px; 
+    padding-left: 10px; 
+    text-align: left;
+    vertical-align: top;
+    font-size:10pt;
+    cursor:pointer;
+}
+td.cms {
+    width: 50px;  
+    text-align:left; 
+    vertical-align: top;
+    font-size:10pt;
+    cursor:pointer;
+}
+td.isReq {
+    width: 40px;
+    text-align: center;
+    vertical-align: top;
+    font-size:8pt;
+    cursor:pointer;
+}
+td.edit{
+    width: 50px;  
+    text-align:center; 
+    vertical-align: top;
+    font-size:8pt;
+    cursor:pointer;
+}
+td.delete{
+    width: 30px;  
+    text-align:center; 
+    vertical-align: top;
+    font-size:8pt;
+    cursor:pointer;
+}
+td.hdr {
+    height: 60px;
+    vertical-align:middle;
+}
+img.expandCollapse {
+    margin-top:5px;
+}
+
+.modal-header {
+    padding:9px 15px;
+    border-bottom:1px solid #eee;
+    color: #FFFFFF;
+    background-color: #337AB7;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+}            /* Sets modal header to white text with blue background. */  
+
+label.errMessage {
+    color:red; 
+    float:left; 
+    display: none;
+}

@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Drag and Drop Example</title>
+    <link href="/Common/Frameworks/jquery-ui-1.11.4.custom/jquery-ui.min.css" rel="stylesheet" />
+    <script src="/Common/Frameworks/jquery-1.12.0.min.js"></script>
+    <script src="/Common/Frameworks/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+    <style>
+        body{
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            font-size: 10pt;
+        }
+        #questions {
+            width: 400px;
+            height:600px;
+            border: #1585AB solid 2px;
+            float:left;
+            background-color: silver;
+            list-style: none;
+        }
+
+        .highlight {
+            width:382px;
+            height:20px;
+            padding: 5px 5px 5px 5px;
+            margin:2px 2px 2px 2px;
+            background-color: tan;
+            border: brown solid 2px;   
+            background-color: hotpink;
+        }
+        #questionCategoryWrapper {
+            width: 623px;
+            height: 602px;
+        }
+        .question{
+            width:382px;
+            height:20px;
+            padding: 5px 5px 5px 5px;
+            margin:2px 2px 2px 2px;
+            background-color: tan;
+            border: brown solid 2px;            
+        }
+    </style>
+</head>
+<body>
+    <div id="addCategory" style="margin-bottom: 5px;">
+        <span>Add a category:</span><br />
+        <input id="txtCategory" type="text" style="width: 348px; height: 18px;" /><button id="btnAddCategory" style="height:24px; margin-left:5px;">Add</button>
+    </div>
+
+    <div id="addQuestion" style="margin-bottom: 5px;">
+        <span>Add a question:</span><br/>
+        <input id="txtQuestion" type="text" style="width: 348px; height: 18px;" /><button id="btnAddQuestion" style="height:24px; margin-left:5px;">Add</button>
+    </div>
+
+    <div id="questionsContainer">
+        <ul id="questions">
+            <li class="question">Yellow</li>
+            <li class="question">Red</li>
+            <li class="question">Blue</li>
+            <li class="question">Green</li>
+            <li class="question">Black</li>
+            <li class="question">White</li>
+            <li class="question">Gold</li>
+            <li class="question">Silver</li>
+        </ul>
+    </div>
+
+    <script type="text/javascript">
+
+        function getMarkupNewQuestion(questionText) {
+            var collection = $('#questions');
+            var htmlMarkup = "";
+            return htmlMarkup
+        }
+
+        function getMarkupNewCategory(categoryText) {
+            var collection = $('#categories');
+            var htmlMarkup = "";
+            return htmlMarkup
+        }
+
+
+        $("#btnAddCategory").on('click', function () {
+            var txtEntered = $.trim($("#txtCategory").val());
+            if (txtEntered.length > 0) {
+                $("#categories").append(getMarkupNewCategory(txtEntered));
+            }
+            // TODO Validate the category does not already exist.
+        });
+
+        $("#btnAddQuestion").on('click', function () {
+            var txtEntered = $.trim($("#txtQuestion").val());
+            if (txtEntered.length > 0) {
+                $("#questions").append(getMarkupNewQuestion(txtEntered));
+            }
+            // TODO Validate the question does not already exist.
+        });
+
+        $(function () {
+            $("#questions").sortable({
+                placeholder: "highlight",
+                start: function (event, ui) {
+                    ui.item.toggleClass("highlight");
+                },
+                stop: function (event, ui) {
+                    ui.item.toggleClass("highlight");
+                },
+                containment: "#questions"
+                //revert: "invalid",
+            });
+
+            $("#questions").droppable({
+                accept: ".question",
+                drop: function (event, ui) {
+                    // alert("You dropped something!");
+                    // ui.draggable.remove();
+                }
+            });
+
+            // This script is able to reposition each line item under its sibling. Useful code.
+            //var i = 0;
+            //$("#questions > li").each(function () {
+            //    $(this).css({
+            //        top: i * 42
+            //    });
+            //    i++;
+            //});
+        });
+    </script>
+</body>
+</html>
