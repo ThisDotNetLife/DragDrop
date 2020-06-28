@@ -7,5 +7,5 @@ This first example shows what the page would look like when all the sections wer
 Below you can see what the form looks like if you collapse all the sections. Notice there's a toggle on the form to let you expand or collapse all sections.
 ![AddEditObservation](Example02.jpg)
 
-At the time, we were heavy into jQuery, so I wante to try out jQuery modal forms as well.
+At the time, we were heavy into jQuery, so I wanted to try out jQuery modal forms as well.
 ![AddEditObservation](Example03.jpg)
